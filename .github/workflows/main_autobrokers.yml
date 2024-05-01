@@ -29,6 +29,7 @@ jobs:
         with:
           name: java-app
           path: '${{ github.workspace }}/target/*.jar'
+          node-version: 20
 
   deploy:
     runs-on: ubuntu-latest
