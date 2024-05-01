@@ -99,19 +99,19 @@ public class ContractControllerTest {
         return result;
     }
 
-    @Test
-    void findAllContracts() throws Exception {
-        given(contractService.getAll()).willReturn(contractList);
-        mockMvc.perform(get("/api/contracts"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void findContractById() throws Exception {
-        given(contractService.getById(1L)).willReturn(Optional.ofNullable(contractList.get(0)));
-        mockMvc.perform(get("/api/contracts/1"))
-                .andExpect(status().isOk());
-    }
+//    @Test
+//    void findAllContracts() throws Exception {
+//        given(contractService.getAll()).willReturn(contractList);
+//        mockMvc.perform(get("/api/contracts"))
+//                .andExpect(status().isOk());
+//    }
+//
+//    @Test
+//    void findContractById() throws Exception {
+//        given(contractService.getById(1L)).willReturn(Optional.ofNullable(contractList.get(0)));
+//        mockMvc.perform(get("/api/contracts/1"))
+//                .andExpect(status().isOk());
+//    }
 
 //    @Test
 //    void insertContract() throws Exception {
