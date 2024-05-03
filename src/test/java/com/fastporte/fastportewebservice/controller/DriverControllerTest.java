@@ -111,18 +111,18 @@ public class DriverControllerTest {
                 .andExpect(status().isOk());
     }
 
-//    @Test
-//    void deleteDriverTest() throws Exception {
-//        Long id = 1L;
-//        Driver driver = new Driver(1L, "Mario", "Gomez",
-//                "Mario Gomez", "photo", "mg@gmail.com",
-//                "987432651", "Amazonas",
-//                date, "pass789",
-//                "I'm the best driver");
-//        given(driverService.getById(id)).willReturn(Optional.of(driver));
-//        mockMvc.perform(delete("/api/drivers/{id}", id))
-//                .andExpect(status().isOk());
-//    }
+    @Test
+    void deleteDriverTest() throws Exception {
+        Long id = 1L;
+        Driver driver = new Driver(1L, "Mario", "Gomez",
+                "Mario Gomez", "photo", "mg@gmail.com",
+                "987432651", "Amazonas",
+               date, "pass789",
+               "I'm the best driver");
+        given(driverService.getById(id)).willReturn(Optional.of(driver));
+        mockMvc.perform(delete("/api/drivers/{id}", id))
+                .andExpect(status().isOk());
+    }
 
     public static String asJsonString(final Object obj) {
         try {
