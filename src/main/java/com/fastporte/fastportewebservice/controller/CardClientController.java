@@ -6,10 +6,11 @@ import com.fastporte.fastportewebservice.entities.Client;
 import com.fastporte.fastportewebservice.service.ICardClientService;
 import com.fastporte.fastportewebservice.service.ICardService;
 import com.fastporte.fastportewebservice.service.IClientService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ import java.util.Optional;
 @CrossOrigin
 @RestController
 @RequestMapping("/api/cardsClient")
-@Api(tags="Cards Client", value="Web Service RESTful of Cards Clients")
+@Tag(name="Cards Client", description="Web Service RESTful of Cards Clients")
 public class CardClientController {
     private final ICardClientService cardClientService;
     private final IClientService clientService;
@@ -34,18 +35,16 @@ public class CardClientController {
         this.cardService = cardService;
     }
 
-    //Retornar todos los cardsClient
+    @Operation(summary = "List of Card Client", description = "Method to list all cards clients")
+    @ApiResponse(responseCode = "200", description = "Cards Clients found",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CardClient.class))})
+    @ApiResponse(responseCode = "204", description = "Cards Clients not found")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @GetMapping(value = "/all", produces = "application/json")
-    @ApiOperation(value="List of Card Client", notes="Method to list all cards clients")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Cards Clients found"),
-            @ApiResponse(code=404, message="Cards Clients not found"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
     public ResponseEntity<List<CardClient>> findAll() {
         try {
             List<CardClient> cardsClient = cardClientService.getAll();
-            if (cardsClient.size() > 0)
+            if (!cardsClient.isEmpty())
                 return new ResponseEntity<>(cardsClient, HttpStatus.OK);
             else
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -55,20 +54,18 @@ public class CardClientController {
         }
     }
 
-    //Obtener los cards de un client por id
+    @Operation(summary = "Card Client by Id", description = "Method to find a card client by id")
+    @ApiResponse(responseCode = "200", description = "Card Client found",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CardClient.class))})
+    @ApiResponse(responseCode = "404", description = "Card Client not found")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @GetMapping(value = "/{id}", produces = "application/json")
-    @ApiOperation(value="Card Client by Id", notes="Method to find a card client by id")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Card Client found"),
-            @ApiResponse(code=404, message="Card Client not found"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
     public ResponseEntity<List<CardClient>> getCardsByClientId(@PathVariable("id") Long id) {
 
         try {
             List<CardClient> cardsClient = cardClientService.getAll();
             cardsClient.removeIf(cardClient -> !cardClient.getClient().getId().equals(id));
-            if (cardsClient.size() == 0) {
+            if (cardsClient.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
             return new ResponseEntity<>(cardsClient, HttpStatus.OK);
@@ -78,28 +75,24 @@ public class CardClientController {
         }
     }
 
-    //Agregar un card a un client
+    @Operation(summary = "Insert Card Client", description = "Method to insert a card client")
+    @ApiResponse(responseCode = "201", description = "Card Client created",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CardClient.class))})
+    @ApiResponse(responseCode = "404", description = "Card Client not created")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @PostMapping(value = "/{idClient}/add",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Insert Card Client", notes="Method to insert a card client")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Card Client created"),
-            @ApiResponse(code=404, message="Card Client not created"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
     public ResponseEntity<CardClient> addCardToClient(@PathVariable("idClient") Long idClient,
                                                       @Valid @RequestBody Card card) {
         try {
             Optional<Client> client = clientService.getById(idClient);
             if (client.isPresent()) {
                 Long id = cardService.save(card).getId();
-                System.out.println("Id: " + id);
                 CardClient cardClient = new CardClient();
                 cardClient.setClient(client.get());
                 cardClient.setCard(cardService.getById(id).get());
                 cardClientService.save(cardClient);
-                id = 0L;
                 return new ResponseEntity<>(cardClient, HttpStatus.CREATED);
 
             } else {
@@ -111,16 +104,13 @@ public class CardClientController {
         }
     }
 
-    //Eliminar un card de un client
+    @Operation(summary = "Delete Card Client", description = "Method to delete a card client")
+    @ApiResponse(responseCode = "200", description = "Card Client deleted")
+    @ApiResponse(responseCode = "404", description = "Card Client not deleted")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @DeleteMapping(value = "/{idClient}/delete/{idCard}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Delete Card Client", notes="Method to delete a card client")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Card Client deleted"),
-            @ApiResponse(code=404, message="Card Client not deleted"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
-    public ResponseEntity<HttpStatus> deleteCardFromClient(@PathVariable("idClient") Long idClient,
-                                                           @PathVariable("idCard") Long idCard) {
+    public ResponseEntity<Void> deleteCardFromClient(@PathVariable("idClient") Long idClient,
+                                                     @PathVariable("idCard") Long idCard) {
         try {
             Optional<Client> client = clientService.getById(idClient);
             Optional<Card> card = cardService.getById(idCard);

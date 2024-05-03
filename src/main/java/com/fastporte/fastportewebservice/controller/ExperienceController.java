@@ -1,12 +1,12 @@
 package com.fastporte.fastportewebservice.controller;
 
-
 import com.fastporte.fastportewebservice.entities.*;
 import com.fastporte.fastportewebservice.service.*;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,6 @@ import java.util.Optional;
 @CrossOrigin
 @RestController
 @RequestMapping("/api/experience")
-@Api(tags="Experience", value="Web Service RESTful of Experiences")
 public class ExperienceController {
     private final IExperienceService experienceService;
     private final IDriverService driverService;
@@ -31,17 +30,18 @@ public class ExperienceController {
 
     //Retornar experience por id
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Experience by Id", notes="Method to find a experience by id")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Experience found"),
-            @ApiResponse(code=404, message="Experience not found"),
-            @ApiResponse(code=501, message="Internal server error")
+    @Operation(summary = "Experience by Id", description = "Method to find an experience by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Experience found",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Experience.class))}),
+            @ApiResponse(responseCode = "404", description = "Experience not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<List<Experience>> findExperienceById(@PathVariable("id") Long id) {
         try {
-
             List<Experience> experience = experienceService.findByDriverId(id);
-            if (experience.size() > 0)
+            if (!experience.isEmpty())
                 return new ResponseEntity<>(experience, HttpStatus.OK);
             else
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -50,38 +50,43 @@ public class ExperienceController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     // Insertar experience
     @PostMapping(value = "/{driverId}",consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Insert Experience", notes="Method to insert a Experience")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Experience created"),
-            @ApiResponse(code=404, message="Experience not created"),
-            @ApiResponse(code=501, message="Experience server error")
+    @Operation(summary = "Insert Experience", description = "Method to insert an experience")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Experience created",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Experience.class))}),
+            @ApiResponse(responseCode = "404", description = "Experience not created"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<Experience> insertExperience(@PathVariable("driverId") Long driverId,
-                                                     @Valid @RequestBody Experience experience) {
+                                                       @Valid @RequestBody Experience experience) {
         try {
-
             Optional<Driver> driver = driverService.getById(driverId);
-        if (driver.isPresent()) {
-            experience.setDriver(driver.get());
-            Experience experienceNew = experienceService.save(experience);
-            return ResponseEntity.status(HttpStatus.CREATED).body(experienceNew);
-        } else
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            if (driver.isPresent()) {
+                experience.setDriver(driver.get());
+                Experience experienceNew = experienceService.save(experience);
+                return ResponseEntity.status(HttpStatus.CREATED).body(experienceNew);
+            } else
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception ex) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     // Actualizar experience
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Update Experience", notes="Method to update a experience")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Experience updated"),
-            @ApiResponse(code=404, message="Experience not updated"),
-            @ApiResponse(code=501, message="Internal server error")
+    @Operation(summary = "Update Experience", description = "Method to update an experience")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Experience updated",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Experience.class))}),
+            @ApiResponse(responseCode = "404", description = "Experience not updated"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<Experience> updateExperience(@PathVariable("id") Long id,
                                                        @Valid @RequestBody Experience experience) {
@@ -97,13 +102,14 @@ public class ExperienceController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     // Eliminar experience
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Delete Experience", notes="Method to delete a experience")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Experience deleted"),
-            @ApiResponse(code=404, message="Experience not deleted"),
-            @ApiResponse(code=501, message="Internal server error")
+    @Operation(summary = "Delete Experience", description = "Method to delete an experience")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Experience deleted"),
+            @ApiResponse(responseCode = "404", description = "Experience not deleted"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<Experience> deleteExperience(@PathVariable("id") Long id) {
         try {

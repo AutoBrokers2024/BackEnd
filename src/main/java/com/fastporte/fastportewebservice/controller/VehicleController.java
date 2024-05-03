@@ -1,15 +1,14 @@
 package com.fastporte.fastportewebservice.controller;
 
-
-import com.fastporte.fastportewebservice.entities.Contract;
 import com.fastporte.fastportewebservice.entities.Driver;
 import com.fastporte.fastportewebservice.entities.Vehicle;
 import com.fastporte.fastportewebservice.service.IDriverService;
 import com.fastporte.fastportewebservice.service.IVehicleService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +21,7 @@ import java.util.Optional;
 @CrossOrigin
 @RestController
 @RequestMapping("/api/vehicle")
-@Api(tags="Vehicle", value="Web Service RESTful of Vehicles")
+@Tag(name="Vehicle", description="Web Service RESTful of Vehicles")
 public class VehicleController {
     private final IVehicleService vehicleService;
     private final IDriverService driverService;
@@ -32,13 +31,12 @@ public class VehicleController {
         this.driverService = driverService;
     }
 
+    @Operation(summary = "Vehicle by Id", description = "Method to find a vehicle by id")
+    @ApiResponse(responseCode = "200", description = "Vehicle found",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Vehicle.class))})
+    @ApiResponse(responseCode = "404", description = "Vehicle not found")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Vehicle by Id", notes="Method to find a vehicle by id")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Vehicle found"),
-            @ApiResponse(code=404, message="Vehicle not found"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
     public ResponseEntity<Vehicle> findVehicleById(@PathVariable("id") Long id) {
         try {
             Optional<Vehicle> vehicle = vehicleService.getById(id);
@@ -52,21 +50,19 @@ public class VehicleController {
         }
     }
 
-    //Obtener todos los vehiculos de un driver
+    @Operation(summary = "Vehicle by driver id", description = "Method to find vehicles by driver id")
+    @ApiResponse(responseCode = "200", description = "Vehicles found",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Vehicle.class))})
+    @ApiResponse(responseCode = "204", description = "Vehicles not found")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @GetMapping(value = "/driver/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Vehicle by driver id", notes="Method to find a vehicle by id")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Vehicle found"),
-            @ApiResponse(code=404, message="Vehicle not found"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
     public ResponseEntity<List<Vehicle>> findVehicleByDriverId(@PathVariable("id") Long id) {
         try {
             List<Vehicle> vehicles = vehicleService.getAll();
 
             vehicles.removeIf(vehicle -> !vehicle.getDriver().getId().equals(id));
 
-            if (vehicles.size()> 0)
+            if (!vehicles.isEmpty())
                 return new ResponseEntity<>(vehicles, HttpStatus.OK);
             else
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -76,95 +72,87 @@ public class VehicleController {
         }
     }
 
-    @GetMapping(value = "/find/{type}/{quantity}",
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Vehicle by Category & Quantity", notes="Method to find a client by its category and quantity")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Vehicle found"),
-            @ApiResponse(code=404, message="Vehicle not found"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
-    public ResponseEntity<List<Vehicle>> findByType_cardQuantityCategory(
+    @Operation(summary = "Vehicle by Category & Quantity", description = "Method to find vehicles by category and quantity")
+    @ApiResponse(responseCode = "200", description = "Vehicles found",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Vehicle.class))})
+    @ApiResponse(responseCode = "204", description = "Vehicles not found")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
+    @GetMapping(value = "/find/{type}/{quantity}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Vehicle>> findByTypeCardQuantityCategory(
             @PathVariable("type") String type,
             @PathVariable("quantity") Long quantity) {
         try {
-            List<Vehicle> vehicle = vehicleService.getAll();
-            vehicle.removeIf(vehicle_ -> !vehicle_.getType().equals(type));
-            vehicle.removeIf(vehicle_ -> vehicle_.getQuantity() < quantity);
+            List<Vehicle> vehicles = vehicleService.getAll();
+            vehicles.removeIf(vehicle -> !vehicle.getType().equals(type));
+            vehicles.removeIf(vehicle -> vehicle.getQuantity() < quantity);
 
-            if (vehicle.size() > 0)
-                return new ResponseEntity<>(vehicle, HttpStatus.OK);
+            if (!vehicles.isEmpty())
+                return new ResponseEntity<>(vehicles, HttpStatus.OK);
             else
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception ex) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    // Insertar vehicle
-    @PostMapping(value = "/{driverId}",consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Insert Vehicle", notes="Method to insert a vehicle")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Vehicle created"),
-            @ApiResponse(code=404, message="Vehicle not created"),
-            @ApiResponse(code=501, message="Vehicle server error")
-    })
+
+    @Operation(summary = "Insert Vehicle", description = "Method to insert a vehicle")
+    @ApiResponse(responseCode = "201", description = "Vehicle created",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Vehicle.class))})
+    @ApiResponse(responseCode = "500", description = "Internal server error")
+    @PostMapping(value = "/{driverId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Vehicle> insertVehicle(@PathVariable("driverId") Long driverId,
-                                                    @Valid @RequestBody Vehicle vehicle) {
+                                                 @Valid @RequestBody Vehicle vehicle) {
         try {
             Optional<Driver> driver = driverService.getById(driverId);
             if (driver.isPresent()) {
                 vehicle.setDriver(driver.get());
-                Vehicle vehicleNew = vehicleService.save(vehicle);
-                return ResponseEntity.status(HttpStatus.CREATED).body(vehicleNew);
+                Vehicle newVehicle = vehicleService.save(vehicle);
+                return ResponseEntity.status(HttpStatus.CREATED).body(newVehicle);
             } else
                 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception ex) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    // Actualizar vehicle
-    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Update Vehicle", notes="Method to update a vehicle")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Vehicle updated"),
-            @ApiResponse(code=404, message="Vehicle not updated"),
-            @ApiResponse(code=501, message="Vehicle server error")
-    })
-    public ResponseEntity<Vehicle> updateClient(@PathVariable("id") Long id,
-                                                   @Valid @RequestBody Vehicle vehicle) {
+
+    @Operation(summary = "Update Vehicle", description = "Method to update a vehicle")
+    @ApiResponse(responseCode = "200", description = "Vehicle updated",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Vehicle.class))})
+    @ApiResponse(responseCode = "404", description = "Vehicle not updated")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Vehicle> updateVehicle(@PathVariable("id") Long id,
+                                                 @Valid @RequestBody Vehicle vehicle) {
         try {
-            Optional<Vehicle> vehicleUpdate = vehicleService.getById(id);
-            if (!vehicleUpdate.isPresent()) {
+            Optional<Vehicle> vehicleToUpdate = vehicleService.getById(id);
+            if (vehicleToUpdate.isPresent()) {
+                vehicle.setId(id);
+                vehicleService.save(vehicle);
+                return new ResponseEntity<>(vehicle, HttpStatus.OK);
+            } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            vehicle.setId(id);
-            vehicleService.save(vehicle);
-            return new ResponseEntity<>(vehicle, HttpStatus.OK);
-        } catch (Exception ex) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-    // Eliminar vehicle
-    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Delete Vehicle", notes="Method to delete a vehicle")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Vehicle deleted"),
-            @ApiResponse(code=404, message="Vehicle not deleted"),
-            @ApiResponse(code=501, message="Vehicle server error")
-    })
-    public ResponseEntity<Vehicle> deleteExperience(@PathVariable("id") Long id) {
-        try {
-            Optional<Vehicle> vehicleDelete = vehicleService.getById(id);
-            if (!vehicleDelete.isPresent()) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            vehicleService.delete(id);
-            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception ex) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    @Operation(summary = "Delete Vehicle", description = "Method to delete a vehicle")
+    @ApiResponse(responseCode = "200", description = "Vehicle deleted")
+    @ApiResponse(responseCode = "404", description = "Vehicle not deleted")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
+    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> deleteVehicle(@PathVariable("id") Long id) {
+        try {
+            Optional<Vehicle> vehicleToDelete = vehicleService.getById(id);
+            if (vehicleToDelete.isPresent()) {
+                vehicleService.delete(id);
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

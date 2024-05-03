@@ -2,10 +2,11 @@ package com.fastporte.fastportewebservice.controller;
 
 import com.fastporte.fastportewebservice.entities.Driver;
 import com.fastporte.fastportewebservice.service.IDriverService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,6 @@ import java.util.Optional;
 @CrossOrigin
 @RestController
 @RequestMapping("/api/drivers")
-@Api(tags="Driver", value="Web Service RESTful of Drivers")
 public class DriverController {
     private final IDriverService driverService;
 
@@ -28,16 +28,18 @@ public class DriverController {
 
     // Retornar todos los drivers
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="List of Drivers", notes="Method to list all drivers")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Drivers found"),
-            @ApiResponse(code=404, message="Drivers not found"),
-            @ApiResponse(code=501, message="Internal server error")
+    @Operation(summary = "List of Drivers", description = "Method to list all drivers")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Drivers found",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Driver.class))}),
+            @ApiResponse(responseCode = "204", description = "Drivers not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<List<Driver>> getAllDrivers() {
         try {
             List<Driver> drivers = driverService.getAll();
-            if (drivers.size() > 0) {
+            if (!drivers.isEmpty()) {
                 return new ResponseEntity<>(drivers, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -49,11 +51,13 @@ public class DriverController {
 
     // Retornar driver por id
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Driver by Id", notes="Method to find a driver by id")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Driver found"),
-            @ApiResponse(code=404, message="Driver not found"),
-            @ApiResponse(code=501, message="Internal server error")
+    @Operation(summary = "Driver by Id", description = "Method to find a driver by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Driver found",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Driver.class))}),
+            @ApiResponse(responseCode = "404", description = "Driver not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<Driver> findDriverById(@PathVariable("id") Long id) {
         try {
@@ -70,13 +74,15 @@ public class DriverController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Create Driver", notes="Method to create a driver")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Driver created"),
-            @ApiResponse(code=404, message="Driver not created"),
-            @ApiResponse(code=501, message="Internal server error")
+    @Operation(summary = "Create Driver", description = "Method to create a driver")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Driver created",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Driver.class))}),
+            @ApiResponse(responseCode = "404", description = "Driver not created"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public ResponseEntity<Driver> insertDriver(@RequestBody Driver driver) {
+    public ResponseEntity<Driver> insertDriver(@Valid @RequestBody Driver driver) {
         try {
             Driver driverNew = driverService.save(driver);
             return ResponseEntity.status(HttpStatus.CREATED).body(driverNew);
@@ -87,11 +93,13 @@ public class DriverController {
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Update Driver", notes="Method to update a driver")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Driver updated"),
-            @ApiResponse(code=404, message="Driver not updated"),
-            @ApiResponse(code=501, message="Internal server error")
+    @Operation(summary = "Update Driver", description = "Method to update a driver")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Driver updated",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Driver.class))}),
+            @ApiResponse(responseCode = "404", description = "Driver not updated"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<Driver> updateDriver(@PathVariable("id") Long id,
                                                @Valid @RequestBody Driver driver) {
@@ -109,11 +117,11 @@ public class DriverController {
     }
 
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Delete Driver", notes="Method to delete a driver")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Driver deleted"),
-            @ApiResponse(code=404, message="Driver not deleted"),
-            @ApiResponse(code=501, message="Internal server error")
+    @Operation(summary = "Delete Driver", description = "Method to delete a driver")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Driver deleted"),
+            @ApiResponse(responseCode = "404", description = "Driver not deleted"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<Driver> deleteDriver(@PathVariable("id") Long id) {
         try {

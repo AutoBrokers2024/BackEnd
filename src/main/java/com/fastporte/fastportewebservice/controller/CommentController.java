@@ -2,23 +2,24 @@ package com.fastporte.fastportewebservice.controller;
 
 import com.fastporte.fastportewebservice.entities.*;
 import com.fastporte.fastportewebservice.service.*;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
-import javax.validation.Valid;
 
 @CrossOrigin
 @RestController
 @RequestMapping("/api/comments")
-@Api(tags="Comments", value="Web Service RESTful of Comments")
+@Tag(name="Comments", description="Web Service RESTful of Comments")
 public class CommentController {
 
     private final ICommentService commentService;
@@ -29,22 +30,19 @@ public class CommentController {
         this.commentService = commentService;
         this.clientService = clientService;
         this.driverService = driverService;
-
     }
 
-    //Retornar todos los comments
+    @Operation(summary = "List of Comments", description = "Method to list all comments")
+    @ApiResponse(responseCode = "200", description = "Comments found",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Comment.class))})
+    @ApiResponse(responseCode = "204", description = "Comments not found")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="List of Comments", notes="Method to list all comments")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Comments found"),
-            @ApiResponse(code=404, message="Comments not found"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
-    public ResponseEntity<List<Comment>> findAllComments() { //Response entity: la clase por defecto de spring para responder desde un controlador de API
+    public ResponseEntity<List<Comment>> findAllComments() {
         try {
             List<Comment> comments = commentService.getAll();
 
-            if (comments.size() > 0)
+            if (!comments.isEmpty())
                 return new ResponseEntity<>(comments, HttpStatus.OK);
             else
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -54,20 +52,18 @@ public class CommentController {
         }
     }
 
-    //Retornar contrato por id
+    @Operation(summary = "Comment by Id", description = "Method to find a comment by id")
+    @ApiResponse(responseCode = "200", description = "Comment found",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Comment.class))})
+    @ApiResponse(responseCode = "404", description = "Comment not found")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Comment by Id", notes="Method to find a comment by id")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Comment found"),
-            @ApiResponse(code=404, message="Comment not found"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
-    public ResponseEntity<Comment> findContractById(@PathVariable("id") Long id) {
+    public ResponseEntity<Comment> findCommentById(@PathVariable("id") Long id) {
         try {
             Optional<Comment> comment = commentService.getById(id);
 
-            if (comment.isPresent()) //con isPresent se valida si es de tipo Contract o es nulo
-                return new ResponseEntity<>(comment.get(), HttpStatus.OK); //se usa get porque es optional
+            if (comment.isPresent())
+                return new ResponseEntity<>(comment.get(), HttpStatus.OK);
             else
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
@@ -76,20 +72,18 @@ public class CommentController {
         }
     }
 
-    //Retornar los commentarios por driver id
+    @Operation(summary = "Comment by Driver Id", description = "Method to find comments by driver id")
+    @ApiResponse(responseCode = "200", description = "Comments found",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Comment.class))})
+    @ApiResponse(responseCode = "204", description = "Comments not found")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @GetMapping(value = "/driver/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Comment by Driver Id", notes="Method to find a comment by driver id")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Comment found"),
-            @ApiResponse(code=404, message="Comment not found"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
-    public ResponseEntity<List<Comment>> findCommentById(@PathVariable("id") Long id) {
+    public ResponseEntity<List<Comment>> findCommentsByDriverId(@PathVariable("id") Long id) {
         try {
             List<Comment> comments = commentService.getAll();
 
             comments.removeIf(comment -> !comment.getDriver().getId().equals(id));
-            if (comments.size() > 0)
+            if (!comments.isEmpty())
                 return new ResponseEntity<>(comments, HttpStatus.OK);
             else
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -99,13 +93,12 @@ public class CommentController {
         }
     }
 
+    @Operation(summary = "Insert Comment", description = "Method to insert a comment")
+    @ApiResponse(responseCode = "201", description = "Comment created",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Comment.class))})
+    @ApiResponse(responseCode = "404", description = "Comment not created")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @PostMapping(value = "/add/{clientId}/{driverId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Insert Comment", notes="Method to insert a comment")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Comment created"),
-            @ApiResponse(code=404, message="Comment not created"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
     public ResponseEntity<Comment> saveComment(@Valid @RequestBody Comment comment, @PathVariable("clientId") Long clientId,
                                                @PathVariable("driverId") Long driverId) {
         try {

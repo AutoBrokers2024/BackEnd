@@ -1,14 +1,14 @@
 package com.fastporte.fastportewebservice.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+
 import java.io.Serializable;
-import com.fastporte.fastportewebservice.entities.Client;
+
 
 @Entity
 @Table(name = "notifications")
