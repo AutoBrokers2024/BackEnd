@@ -74,33 +74,33 @@ public class ClientServiceImplTest {
        List<Client> listExpected = clientService.getAll();
         assertEquals(listExpected, list);
     }
-//
-//    @Test
-//    public void getByIdTest() throws Exception {
-//        Long id = 1L;
-//        Client client = new Client(1L, "Juan", "Perez",
-//                "Juan Perez", "photo", "jp@gmail.com",
-//                "987654312", "Lima",
-//                date, "pass123",
-//                "I work with a lot of merchandise");
-//        given(clientRepository.findById(id)).willReturn(Optional.of(client));
-//        Optional<Client> clientExpected = clientService.getById(id);
-//        assertThat(clientExpected).isNotNull();
-//        assertEquals(clientExpected, Optional.of(client));
-//    }
-//
-//    @Test
-//    public void findByEmailAndPasswordTest() throws Exception {
-//        String email = "jp@gmail.com";
-//        String password = "pass123";
-//        Client client = new Client(1L, "Juan", "Perez",
-//                "Juan Perez", "photo", "jp@gmail.com",
-//                "987654312", "Lima",
-//                date, "pass123",
-//                "I work with a lot of merchandise");
-//        given(clientRepository.findByEmailAndPassword(email, password)).willReturn(client);
-//        Client clientExpected = clientService.findByEmailAndPassword(email, password);
-//        assertThat(clientExpected).isNotNull();
+
+    @Test
+    public void getByIdTest() throws Exception {
+        Long id = 1L;
+        Client client = new Client(1L, "Juan", "Perez",
+               "Juan Perez", "photo", "jp@gmail.com",
+                "987654312", "Lima",
+                date, "pass123",
+                "I work with a lot of merchandise");
+        given(clientRepository.findById(id)).willReturn(Optional.of(client));
+        Optional<Client> clientExpected = clientService.getById(id);
+        assertThat(clientExpected).isNotNull();
+        assertEquals(clientExpected, Optional.of(client));
+    }
+
+    @Test
+    public void findByEmailAndPasswordTest() throws Exception {
+        String email = "jp@gmail.com";
+        String password = "pass123";
+        Client client = new Client(1L, "Juan", "Perez",
+                "Juan Perez", "photo", "jp@gmail.com",
+                "987654312", "Lima",
+                date, "pass123",
+               "I work with a lot of merchandise");
+        given(clientRepository.findByEmailAndPassword(email, password)).willReturn(client);
+        Client clientExpected = clientService.findByEmailAndPassword(email, password);
+        assertThat(clientExpected).isNotNull();
       assertEquals(clientExpected, client);
   }
 }
