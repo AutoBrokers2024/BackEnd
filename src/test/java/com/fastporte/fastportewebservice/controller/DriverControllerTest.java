@@ -67,34 +67,34 @@ public class DriverControllerTest {
         mockMvc.perform(get("/api/drivers"))
                 .andExpect(status().isOk());
    }
-//
-//    @Test
-//    void findDriverById() throws Exception {
-//        Long driverId = 1L;
-//        Driver driver = new Driver(1L, "Mario", "Gomez",
-//                "Mario Gomez", "photo", "mg@gmail.com",
-//                "987432651", "Amazonas",
-//                date, "pass789",
-//                "I'm the best driver");
-//        given(driverService.getById(driverId)).willReturn(Optional.of(driver));
-//        mockMvc.perform(get("/api/drivers/{id}", driverId))
-//                .andExpect(status().isOk());
-//    }
-//
-//    @Test
-//    void insertDriverTest() throws Exception {
-//        Driver driver = new Driver(1L, "Mario", "Gomez",
-//                "Mario Gomez", "photo", "mg@gmail.com",
-//                "987432651", "Amazonas",
-//                date, "pass789",
-//                "I'm the best driver");
-//        mockMvc.perform(post("/api/drivers")
-//                        .content(asJsonString(driver))
-//                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-//                        .accept(MediaType.APPLICATION_JSON_VALUE))
-//                .andExpect(status().isCreated());
-//    }
-//
+
+    @Test
+    void findDriverById() throws Exception {
+        Long driverId = 1L;
+        Driver driver = new Driver(1L, "Mario", "Gomez",
+                "Mario Gomez", "photo", "mg@gmail.com",
+                "987432651", "Amazonas",
+                date, "pass789",
+                "I'm the best driver");
+        given(driverService.getById(driverId)).willReturn(Optional.of(driver));
+        mockMvc.perform(get("/api/drivers/{id}", driverId))
+                .andExpect(status().isOk());
+    }
+
+   @Test
+    void insertDriverTest() throws Exception {
+        Driver driver = new Driver(1L, "Mario", "Gomez",
+                "Mario Gomez", "photo", "mg@gmail.com",
+                "987432651", "Amazonas",
+                date, "pass789",
+                "I'm the best driver");
+        mockMvc.perform(post("/api/drivers")
+                        .content(asJsonString(driver))
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isCreated());
+    }
+
 //    @Test
 //    void updateDriverTest() throws Exception {
 //        Long id = 1L;
