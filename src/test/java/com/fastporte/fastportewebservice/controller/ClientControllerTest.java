@@ -63,25 +63,25 @@ public class ClientControllerTest {
                 "My business is the most important thing"));
     }
 
-//    @Test
-//    void findAllClientsTest() throws Exception {
-//        given(clientService.getAll()).willReturn(clientList);
-//        mockMvc.perform(get("/api/clients"))
-//                .andExpect(status().isOk());
-//    }
-//
-//    @Test
-//    void findClientById() throws Exception {
-//        Long clientId = 1L;
-//        Client client = new Client(1L, "Mario", "Gomez",
-//                "Mario Gomez", "photo", "mg@gmail.com",
-//                "987432651", "Amazonas",
-//                date, "pass789",
-//                "I work with a lot of merchandise");
-//        given(clientService.getById(clientId)).willReturn(Optional.of(client));
-//        mockMvc.perform(get("/api/clients/{id}", clientId))
-//                .andExpect(status().isOk());
-//    }
+    @Test
+   void findAllClientsTest() throws Exception {
+        given(clientService.getAll()).willReturn(clientList);
+        mockMvc.perform(get("/api/clients"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void findClientById() throws Exception {
+        Long clientId = 1L;
+        Client client = new Client(1L, "Mario", "Gomez",
+                "Mario Gomez", "photo", "mg@gmail.com",
+                "987432651", "Amazonas",
+                date, "pass789",
+                "I work with a lot of merchandise");
+        given(clientService.getById(clientId)).willReturn(Optional.of(client));
+        mockMvc.perform(get("/api/clients/{id}", clientId))
+               .andExpect(status().isOk());
+    }
 //
 //    @Test
 //    void insertClientTest() throws Exception {
