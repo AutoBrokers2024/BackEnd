@@ -82,36 +82,36 @@ public class ClientControllerTest {
         mockMvc.perform(get("/api/clients/{id}", clientId))
                .andExpect(status().isOk());
     }
-//
-//    @Test
-//    void insertClientTest() throws Exception {
-//        Client client = new Client(1L, "Mario", "Gomez",
-//                "Mario Gomez", "photo", "mg@gmail.com",
-//                "987432651", "Amazonas",
-//                date, "pass789",
-//                "I work with a lot of merchandise");
-//        mockMvc.perform(post("/api/clients")
-//                        .content(asJsonString(client))
-//                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-//                        .accept(MediaType.APPLICATION_JSON_VALUE))
-//                .andExpect(status().isCreated());
-//    }
-//
-//    @Test
-//    void updateClientTest() throws Exception {
-//        Long id = 1L;
-//        Client client = new Client(1L, "Antonio", "Martinez",
-//                "Antonio Martinez", "photo", "am@gmail.com",
-//                "983654313", "Amazonas",
-//                date, "pass321",
-//                "I work with a lot of merchandise");
-//        given(clientService.getById(id)).willReturn(Optional.of(client));
-//        mockMvc.perform(put("/api/clients/{id}", id)
-//                        .content(asJsonString(client))
-//                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-//                        .accept(MediaType.APPLICATION_JSON_VALUE))
-//                .andExpect(status().isOk());
-//    }
+
+    @Test
+    void insertClientTest() throws Exception {
+        Client client = new Client(1L, "Mario", "Gomez",
+                "Mario Gomez", "photo", "mg@gmail.com",
+               "987432651", "Amazonas",
+                date, "pass789",
+                "I work with a lot of merchandise");
+        mockMvc.perform(post("/api/clients")
+                        .content(asJsonString(client))
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    void updateClientTest() throws Exception {
+        Long id = 1L;
+        Client client = new Client(1L, "Antonio", "Martinez",
+                "Antonio Martinez", "photo", "am@gmail.com",
+               "983654313", "Amazonas",
+               date, "pass321",
+               "I work with a lot of merchandise");
+        given(clientService.getById(id)).willReturn(Optional.of(client));
+        mockMvc.perform(put("/api/clients/{id}", id)
+                       .content(asJsonString(client))
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                       .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk());
+    }
 //
 //    @Test
 //    void deleteClientTest() throws Exception {
