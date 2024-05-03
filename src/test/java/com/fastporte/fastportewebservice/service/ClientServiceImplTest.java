@@ -27,23 +27,23 @@ public class ClientServiceImplTest {
     private ClientServiceImpl clientService;
     LocalDate date = LocalDate.now();
     LocalTime time = LocalTime.now();
-//    @Test
-//    public void saveTest() {
-//        Client client = new Client(1L, "Juan", "Perez",
-//                "Juan Perez", "photo", "jp@gmail.com",
-//                "987654312", "Lima",
-//                date, "pass123",
-//                "I work with a lot of merchandise");
-//        given(clientRepository.save(client)).willReturn(client);
-//        Client savedClient = null;
-//        try {
-//            savedClient = clientService.save(client);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        assertThat(savedClient).isNotNull();
-//        assertEquals(client, savedClient);
-//    }
+    @Test
+   public void saveTest() {
+       Client client = new Client(1L, "Juan", "Perez",
+                "Juan Perez", "photo", "jp@gmail.com",
+                "987654312", "Lima",
+               date, "pass123",
+               "I work with a lot of merchandise");
+        given(clientRepository.save(client)).willReturn(client);
+        Client savedClient = null;
+       try {
+           savedClient = clientService.save(client);
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
+       assertThat(savedClient).isNotNull();
+        assertEquals(client, savedClient);
+    }
 //
 //    @Test
 //    public void deleteTest() throws Exception {
@@ -101,6 +101,6 @@ public class ClientServiceImplTest {
 //        given(clientRepository.findByEmailAndPassword(email, password)).willReturn(client);
 //        Client clientExpected = clientService.findByEmailAndPassword(email, password);
 //        assertThat(clientExpected).isNotNull();
-//        assertEquals(clientExpected, client);
-//    }
+      assertEquals(clientExpected, client);
+  }
 }
