@@ -61,12 +61,12 @@ public class DriverControllerTest {
                 "Fast and secure"));
     }
 
-//    @Test
-//    void findAllDriversTest() throws Exception {
-//        given(driverService.getAll()).willReturn(driverList);
-//        mockMvc.perform(get("/api/drivers"))
-//                .andExpect(status().isOk());
-//    }
+    @Test
+    void findAllDriversTest() throws Exception {
+       given(driverService.getAll()).willReturn(driverList);
+        mockMvc.perform(get("/api/drivers"))
+                .andExpect(status().isOk());
+   }
 //
 //    @Test
 //    void findDriverById() throws Exception {
