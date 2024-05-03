@@ -112,19 +112,19 @@ public class ClientControllerTest {
                        .accept(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk());
     }
-//
-//    @Test
-//    void deleteClientTest() throws Exception {
-//        Long id = 1L;
-//        Client client = new Client(1L, "Mario", "Gomez",
-//                "Mario Gomez", "photo", "mg@gmail.com",
-//                "987432651", "Amazonas",
-//                date, "pass789",
-//                "I work with a lot of merchandise");
-//        given(clientService.getById(id)).willReturn(Optional.of(client));
-//        mockMvc.perform(delete("/api/clients/{id}", id))
-//                .andExpect(status().isOk());
-//    }
+
+    @Test
+    void deleteClientTest() throws Exception {
+       Long id = 1L;
+        Client client = new Client(1L, "Mario", "Gomez",
+                "Mario Gomez", "photo", "mg@gmail.com",
+                "987432651", "Amazonas",
+                date, "pass789",
+               "I work with a lot of merchandise");
+        given(clientService.getById(id)).willReturn(Optional.of(client));
+        mockMvc.perform(delete("/api/clients/{id}", id))
+                .andExpect(status().isOk());
+    }
 
     public static String asJsonString(final Object obj) {
         try {
