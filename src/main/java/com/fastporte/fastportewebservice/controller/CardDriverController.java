@@ -6,10 +6,11 @@ import com.fastporte.fastportewebservice.entities.Driver;
 import com.fastporte.fastportewebservice.service.ICardDriverService;
 import com.fastporte.fastportewebservice.service.ICardService;
 import com.fastporte.fastportewebservice.service.IDriverService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ import java.util.Optional;
 @CrossOrigin
 @RestController
 @RequestMapping("/api/cardsDriver")
-@Api(tags="Cards Driver", value="Web Service RESTful of Cards Driver")
+@Tag(name="Cards Driver", description="Web Service RESTful of Cards Driver")
 public class CardDriverController {
     private final ICardDriverService cardDriverService;
     private final IDriverService driverService;
@@ -34,18 +35,16 @@ public class CardDriverController {
         this.cardService = cardService;
     }
 
-    //Retornar todos los cardsDriver
+    @Operation(summary = "List of Cards Driver", description = "Method to list all cards driver")
+    @ApiResponse(responseCode = "200", description = "Cards driver found",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CardDriver.class))})
+    @ApiResponse(responseCode = "204", description = "Cards driver not found")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @GetMapping(value = "/all", produces = "application/json")
-    @ApiOperation(value="List of Cards Driver", notes="Method to list all cards driver")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Cards driver found"),
-            @ApiResponse(code=404, message="Cards driver not found"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
     public ResponseEntity<List<CardDriver>> findAll() {
         try {
             List<CardDriver> cardsDriver = cardDriverService.getAll();
-            if (cardsDriver.size() > 0)
+            if (!cardsDriver.isEmpty())
                 return new ResponseEntity<>(cardsDriver, HttpStatus.OK);
             else
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -55,20 +54,18 @@ public class CardDriverController {
         }
     }
 
-    //Obtener los cards de un driver por id
+    @Operation(summary = "Card Driver by Id", description = "Method to find a card driver by id")
+    @ApiResponse(responseCode = "200", description = "Card Driver found",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CardDriver.class))})
+    @ApiResponse(responseCode = "404", description = "Card Driver not found")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @GetMapping(value = "/{id}", produces = "application/json")
-    @ApiOperation(value="Card Driver by Id", notes="Method to find a card driver by id")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Card Driver found"),
-            @ApiResponse(code=404, message="Card Driver not found"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
     public ResponseEntity<List<CardDriver>> getCardsByDriverId(@PathVariable("id") Long id) {
 
         try {
             List<CardDriver> cardsDriver = cardDriverService.getAll();
             cardsDriver.removeIf(cardDriver -> !cardDriver.getDriver().getId().equals(id));
-            if (cardsDriver.size() == 0) {
+            if (cardsDriver.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
             return new ResponseEntity<>(cardsDriver, HttpStatus.OK);
@@ -78,28 +75,24 @@ public class CardDriverController {
         }
     }
 
-    //Agregar un card a un driver
+    @Operation(summary = "Insert Card Driver", description = "Method to insert a card driver")
+    @ApiResponse(responseCode = "201", description = "Card driver created",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CardDriver.class))})
+    @ApiResponse(responseCode = "404", description = "Card driver not created")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @PostMapping(value = "/{idDriver}/add",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Insert Card Driver", notes="Method to insert a card driver")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Card driver created"),
-            @ApiResponse(code=404, message="Card driver not created"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
     public ResponseEntity<CardDriver> addCardToDriver(@PathVariable("idDriver") Long idDriver,
                                                       @Valid @RequestBody Card card) {
         try {
             Optional<Driver> driver = driverService.getById(idDriver);
             if (driver.isPresent()) {
                 Long id = cardService.save(card).getId();
-                System.out.println("Id: " + id);
                 CardDriver cardDriver = new CardDriver();
                 cardDriver.setDriver(driver.get());
                 cardDriver.setCard(cardService.getById(id).get());
                 cardDriverService.save(cardDriver);
-                id = 0L;
                 return new ResponseEntity<>(cardDriver, HttpStatus.CREATED);
 
             } else {
@@ -111,16 +104,13 @@ public class CardDriverController {
         }
     }
 
-    //Eliminar un card de un driver
+    @Operation(summary = "Delete Card Driver", description = "Method to delete a card driver")
+    @ApiResponse(responseCode = "200", description = "Card driver deleted")
+    @ApiResponse(responseCode = "404", description = "Card driver not deleted")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @DeleteMapping(value = "/{idDriver}/delete/{idCard}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Delete Card Driver", notes="Method to delete a card driver")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Card driver deleted"),
-            @ApiResponse(code=404, message="Card driver not deleted"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
-    public ResponseEntity<HttpStatus> deleteCardFromDriver(@PathVariable("idDriver") Long idDriver,
-                                                           @PathVariable("idCard") Long idCard) {
+    public ResponseEntity<Void> deleteCardFromDriver(@PathVariable("idDriver") Long idDriver,
+                                                     @PathVariable("idCard") Long idCard) {
         try {
             Optional<Driver> driver = driverService.getById(idDriver);
             Optional<Card> card = cardService.getById(idCard);
@@ -129,7 +119,7 @@ public class CardDriverController {
                 List<CardDriver> cardsDriver = cardDriverService.getAll();
                 cardsDriver.removeIf(cardDriver ->
                         !(cardDriver.getDriver().getId().equals(idDriver) &&
-                        cardDriver.getCard().getId().equals(idCard)));
+                                cardDriver.getCard().getId().equals(idCard)));
                 cardDriverService.delete(cardsDriver.get(0).getId());
                 cardService.delete(idCard);
 

@@ -1,17 +1,18 @@
 package com.fastporte.fastportewebservice.entities;
 
-import java.sql.Time;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+
 import java.io.Serializable;
 
 

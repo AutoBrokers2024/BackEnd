@@ -2,10 +2,11 @@ package com.fastporte.fastportewebservice.controller;
 
 import com.fastporte.fastportewebservice.entities.Client;
 import com.fastporte.fastportewebservice.service.IClientService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ import java.util.Optional;
 @CrossOrigin
 @RestController
 @RequestMapping("/api/clients")
-@Api(tags="Client", value="Web Service RESTful of Clients")
+@Tag(name="Client", description="Web Service RESTful of Clients")
 public class ClientController {
     private final IClientService clientService;
 
@@ -26,18 +27,16 @@ public class ClientController {
         this.clientService = clientService;
     }
 
-    // Retornar todos los clientes
+    @Operation(summary = "List of Clients", description = "Method to list all clients")
+    @ApiResponse(responseCode = "200", description = "Clients found",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Client.class))})
+    @ApiResponse(responseCode = "204", description = "Clients not found")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="List of Clients", notes="Method to list all clients")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Clients found"),
-            @ApiResponse(code=404, message="Clients not found"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
     public ResponseEntity<List<Client>> getAllClients() {
         try {
             List<Client> clients = clientService.getAll();
-            if (clients.size() > 0) {
+            if (!clients.isEmpty()) {
                 return new ResponseEntity<>(clients, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -47,14 +46,12 @@ public class ClientController {
         }
     }
 
-    // Retornar cliente por id
+    @Operation(summary = "Client by Id", description = "Method to find a client by id")
+    @ApiResponse(responseCode = "200", description = "Client found",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Client.class))})
+    @ApiResponse(responseCode = "404", description = "Client not found")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Client by Id", notes="Method to find a client by id")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Client found"),
-            @ApiResponse(code=404, message="Client not found"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
     public ResponseEntity<Client> findClientById(@PathVariable("id") Long id) {
         try {
             Optional<Client> client = clientService.getById(id);
@@ -68,33 +65,26 @@ public class ClientController {
         }
     }
 
-    // Insertar cliente
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Insert Client", notes="Method to insert a client")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Client created"),
-            @ApiResponse(code=404, message="Client not created"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
+    @Operation(summary = "Insert Client", description = "Method to insert a client")
+    @ApiResponse(responseCode = "201", description = "Client created",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Client.class))})
+    @ApiResponse(responseCode = "500", description = "Internal server error")
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Client> insertClient(@Valid @RequestBody Client client) {
         try {
-            Client clientNew = clientService.save(client);
-            return ResponseEntity.status(HttpStatus.CREATED).body(clientNew);
+            Client newClient = clientService.save(client);
+            return ResponseEntity.status(HttpStatus.CREATED).body(newClient);
         } catch (Exception ex) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    // Actualizar cliente
-    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Update Client", notes="Method to update a client")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Client updated"),
-            @ApiResponse(code=404, message="Client not updated"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
+    @Operation(summary = "Update Client", description = "Method to update a client")
+    @ApiResponse(responseCode = "200", description = "Client updated",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Client.class))})
+    @ApiResponse(responseCode = "404", description = "Client not updated")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Client> updateClient(@PathVariable("id") Long id,
                                                @Valid @RequestBody Client client) {
         try {
@@ -110,15 +100,12 @@ public class ClientController {
         }
     }
 
-    // Eliminar cliente
+    @Operation(summary = "Delete Client", description = "Method to delete a client")
+    @ApiResponse(responseCode = "200", description = "Client deleted")
+    @ApiResponse(responseCode = "404", description = "Client not deleted")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Delete Client", notes="Method to delete a client")
-    @ApiResponses({
-            @ApiResponse(code=201, message="Client deleted"),
-            @ApiResponse(code=404, message="Client not deleted"),
-            @ApiResponse(code=501, message="Internal server error")
-    })
-    public ResponseEntity<Client> deleteClient(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> deleteClient(@PathVariable("id") Long id) {
         try {
             Optional<Client> clientDelete = clientService.getById(id);
             if (!clientDelete.isPresent()) {
@@ -131,9 +118,12 @@ public class ClientController {
         }
     }
 
-    // Retornar client por email y password
-    @GetMapping(value = "/searchEmailPassword/{email}/{password}",
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Client by Email and Password", description = "Method to find a client by email and password")
+    @ApiResponse(responseCode = "200", description = "Client found",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Client.class))})
+    @ApiResponse(responseCode = "404", description = "Client not found")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
+    @GetMapping(value = "/searchEmailPassword/{email}/{password}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Client> findClientByEmailAndPassword(
             @PathVariable("email") String email,
             @PathVariable("password") String password) {
@@ -141,7 +131,7 @@ public class ClientController {
             Client client = clientService.findByEmailAndPassword(email, password);
             if (client == null)
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-           return new ResponseEntity<>(client, HttpStatus.OK);
+            return new ResponseEntity<>(client, HttpStatus.OK);
         } catch (Exception ex) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
